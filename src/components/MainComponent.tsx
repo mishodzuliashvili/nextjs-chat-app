@@ -43,7 +43,6 @@ const MainComponent = () => {
     });
     fetchMessages();
   }, []);
-
   return (
     <div className="max-h-screen">
       <MySidebar
