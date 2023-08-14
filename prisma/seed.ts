@@ -3,11 +3,16 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  const test = await prisma.test.create({
+  const test = await prisma.message.create({
     data: {
-      text: "test",
+      content: "testia",
     },
   });
+  // await prisma.tag.create({
+  //   data: {
+  //     tagName: "testia",
+  //   },
+  // });
   console.log({ test });
 }
 main()
