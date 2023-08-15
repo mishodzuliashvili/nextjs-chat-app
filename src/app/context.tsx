@@ -76,9 +76,7 @@ export function MainProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setInitialMessages()
-  }, [
-    activeTagOptions
-  ])
+  }, [activeTagOptions])
   
   return (
     <MainContext.Provider
