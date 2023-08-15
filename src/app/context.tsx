@@ -74,6 +74,12 @@ export function MainProvider({ children }: { children: React.ReactNode }) {
     subscribeAbly(subscribeAblyCallback);
   }, []);
 
+  useEffect(() => {
+    setInitialMessages()
+  }, [
+    activeTagOptions
+  ])
+  
   return (
     <MainContext.Provider
       value={{
