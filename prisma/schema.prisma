@@ -34,3 +34,4 @@ model tag {
   tagName  String    @unique
   messages message[] @relation("message_tag")
 }
+
