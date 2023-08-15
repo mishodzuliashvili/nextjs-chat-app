@@ -12,11 +12,11 @@ function filterMessagesByTagOptions(
   messages: Message[],
   tagOptions: TagOption[]
 ) {
-  if (tagOptions.length === 0) {
-    return messages.filter((message) => message.tags.length === 0);
-  }
   return messages.filter((message) =>
-    tagOptions.some((tag) => hasMessageTagName(message, tag.value))
+    tagOptions.some(
+      (tag) =>
+        hasMessageTagName(message, tag.value) || message.tags.length === 0
+    )
   );
 }
 

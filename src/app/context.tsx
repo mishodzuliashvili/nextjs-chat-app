@@ -71,7 +71,6 @@ export function MainProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setInitialTags();
-    setInitialMessages();
     subscribeAbly(subscribeAblyCallback);
   }, []);
 
