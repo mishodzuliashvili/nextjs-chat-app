@@ -1,60 +1,65 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import Pusher from "pusher";
+import Ably from "ably";
 
-const pusher = new Pusher({
-  appId: "1651449",
-  key: "dcb6404f028ee60eb750",
-  secret: "13bf69ce9809d4309724",
-  cluster: "ap2",
-  useTLS: true,
-});
+const ably = new Ably.Realtime.Promise(
+  "kF6GTQ.ghESTw:4o49voVpJUXPgygFIsBnDr55MbpJLKUX11w5N4sq4F0"
+);
 
-export async function GET(request: Request) {
+(async () => {
+  await ably.connection.once("connected");
+  console.log("Connected to Ably!");
+})();
+
+async function getMessages() {
+  return await prisma.message.findMany({
+    orderBy: {
+      timestamp: "asc",
+    },
+    include: {
+      tags: true,
+    },
+  });
+}
+
+async function createMessage(messageContent: string, tagNames: string[]) {
+  return await prisma.message.create({
+    data: {
+      content: messageContent,
+      tags: {
+        connectOrCreate: tagNames.map((tagName: string) => ({
+          where: { tagName: tagName },
+          create: { tagName: tagName },
+        })),
+      },
+    },
+    include: {
+      tags: true,
+    },
+  });
+}
+
+async function publishMessage(message: Message) {
+  const channel = ably.channels.get("chat");
+  await channel.publish("message", message);
+}
+
+export async function GET() {
   try {
-    const messages = await prisma.message.findMany({
-      orderBy: {
-        timestamp: "asc",
-      },
-      include: {
-        tags: true,
-      },
-    });
+    const messages: Message[] = await getMessages();
     return NextResponse.json({ messages });
-  } catch (e) {
-    return NextResponse.json({
-      status: 500,
-      body: "Could not fetch messages",
-    });
+  } catch (e: any) {
+    return new Response("Could not fetch messages", { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { content, tags } = await request.json();
-    const message = await prisma.message.create({
-      data: {
-        content,
-        tags: {
-          connectOrCreate: tags.map((tag: string) => ({
-            where: { tagName: tag },
-            create: { tagName: tag },
-          })),
-        },
-      },
-      include: {
-        tags: true,
-      },
-    });
-
-    pusher.trigger("chat", "message", {
-      message,
-    });
+    const { messageContent, tagNames } = await request.json();
+    const message: Message = await createMessage(messageContent, tagNames);
+    publishMessage(message);
     return NextResponse.json({ message });
-  } catch (e) {
-    return NextResponse.json({
-      status: 500,
-      body: "Could not create message",
-    });
+  } catch (e: any) {
+    return new Response("Could not create message", { status: 500 });
   }
 }

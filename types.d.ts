@@ -1,7 +1,7 @@
 type Message = {
   id: string;
   content: string;
-  timestamp: string;
+  timestamp: Date;
   tags: Tag[];
 };
 
@@ -14,4 +14,8 @@ type TagOption = {
   value: string;
   label: string;
   __isNew__?: boolean;
+};
+
+type MyError = {
+  message: string;
 };
